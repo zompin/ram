@@ -13,6 +13,10 @@ class App extends React.Component {
 			cardsForRepeat: [],
 			repeatForm: {
 				show: false
+			},
+			note: {
+				show: false,
+				message: ''
 			}
 		};
 	}
@@ -48,11 +52,12 @@ class App extends React.Component {
 
 	render() {
 		return (
-			<div>
+			<div id="app">
 				<Panel app = {this} />
 				<AddForm app = {this} />
 				<RepeatForm app = {this} />
 				<Cards app = {this} />
+				<Note app = {this} />
 			</div>
 		);
 	}
@@ -62,7 +67,7 @@ class Panel extends React.Component {
 	constructor(props) {
 		super(props);
 		this.showAddForm = this.showAddForm.bind(this);
-		this.showRepearForm = this.showRepearForm.bind(this);
+		this.showRepeatForm = this.showRepeatForm.bind(this);
 		this.state = {
 			app: props.app
 		};
@@ -76,7 +81,7 @@ class Panel extends React.Component {
 		});
 	}
 
-	showRepearForm() {
+	showRepeatForm() {
 		this.state.app.setState({
 			repeatForm: {
 				show: true
@@ -86,9 +91,11 @@ class Panel extends React.Component {
 
 	render() {
 		return (
-			<div id="panel">
-				<button onClick= {this.showRepearForm} >Тренироваться</button>
-				<button onClick= {this.showAddForm} >Добавить</button>
+			<div className="panel">
+				<div className="panel__inner">
+					<button className="button panel__button" onClick= {this.showRepeatForm} >Тренироваться</button>
+					<button className="button panel__button" onClick= {this.showAddForm} >Добавить</button>
+				</div>
 			</div>
 		);
 	}
@@ -101,6 +108,7 @@ class AddForm extends React.Component {
 		this.answerChange 	= this.answerChange.bind(this);
 		this.onAdd 			= this.onAdd.bind(this);
 		this.hideForm		= this.hideForm.bind(this);
+		this.onEnter = this.onEnter.bind(this);
 		this.state = {
 			answer: '',
 			question: '',
@@ -135,6 +143,13 @@ class AddForm extends React.Component {
 		e.preventDefault();
 	}
 
+	onEnter(e) {
+		console.log(12121)
+		if (e.keyCode == 10 || e.keyCode == 13) {
+			this.onAdd(e);
+		}
+	}
+
 	hideForm(e) {
 		this.state.app.setState({
 			addForm: {
@@ -149,18 +164,19 @@ class AddForm extends React.Component {
 		var style = {};
 
 		if (this.state.app.state.addForm.show) {
-			style.display = 'block';
+			style.display = 'flex';
 		} else {
 			style.display = 'none'
 		}
 
 		return (
-			<div style={style}>
-				<form onSubmit={this.onAdd} >
-					<button onClick={this.hideForm}>Закрыть</button>
-					<textarea id="question" onChange={this.questionChange}></textarea>
-					<textarea id="answer" onChange={this.answerChange}></textarea>
-					<button type="submit">Добавить</button>
+			<div style = {style} className="add-form">
+				<div className="add-form__close-div" onClick = {this.hideForm} />
+				<form onSubmit = {this.onAdd} className="add-form__form">
+					<button className="button add-form__button add-form__button_close" onClick = {this.hideForm} >&times;</button>
+					<textarea className="textarea add-form__textarea" id="question" onChang = {this.questionChange} onKeyDown = {this.onEnter} ></textarea>
+					<textarea className="textarea add-form__textarea" id="answer" onChange = {this.answerChange} onKeyDown = {this.onEnter} ></textarea>
+					<button className="button add-form__button add-form__button_add" type="submit">Добавить</button>
 				</form>
 			</div>
 		);
@@ -189,17 +205,25 @@ class Cards extends React.Component {
 		});
 
 		return (
-			<div>{cards}</div>
+			<div className="cards">{cards}</div>
 		);
 	}
 };
 
 function Card(props) {
+	var progress = props.item.repeat;
+	var width = (100 / 6) * progress;
+	var style = {
+		width: width + '%'
+	}
+
 	return (
-		<div key = {props.item.id}>
-			<div>{props.item.question}</div>
-			<div>{props.item.answer}</div>
-			<div>{props.item.repeat}</div>
+		<div key = {props.item.id} className="card">
+			<div className="card__question">{props.item.question}</div>
+			<div className="card__answer">{props.item.answer}</div>
+			<div className="card__progress">
+				<div className="card__progress-scale" style = {style} ></div>
+			</div>
 		</div>
 	);
 }
@@ -296,20 +320,21 @@ class RepeatForm extends React.Component {
 
 
 		if (this.state.app.state.repeatForm.show) {
-			style.display = 'block';
+			style.display = 'flex';
 		} else {
 			style.display = 'none';
 		}
 
 		return (
-			<div style = {style} >
-				<div>{question}</div>
-				<RepeatFormMessage show = {this.state.showMessage} correct = {this.state.correct} answer = {this.state.correctAnswer} />
-				<div>
-					<input onChange = {this.answerChange} onKeyDown = {this.checkAnswer} />
+			<div style = {style} className="repeat-form">
+				<div className="repeat-form__close-div" onClick = {this.closeRepeatForm} ></div>
+				<div className="repeat-form__inner">
+					<div className="repeat-form__question">{question}</div>
+					<RepeatFormMessage show = {this.state.showMessage} correct = {this.state.correct} answer = {this.state.correctAnswer} />
+					<input onChange = {this.answerChange} onKeyDown = {this.checkAnswer} className="repeat-form__input"/>
+					<button onClick = {this.checkAnswer} className="button repeat-form__button repeat-form__button_check">Проверить</button>
+					<button onClick= {this.closeRepeatForm} className="button repeat-form__button repeat-form__button_close">&times;</button>
 				</div>
-				<button onClick = {this.checkAnswer} >Проверить</button>
-				<button onClick= {this.closeRepeatForm} >Закрыть</button>
 			</div>
 		);
 	}
@@ -326,13 +351,53 @@ function RepeatFormMessage(props) {
 
 	if (props.correct) {
 		return (
-			<div style = {style} >Верно</div>
+			<div style = {style} className="repeat-form__message repeat-form__message_right">Верно</div>
 		);
 	} else {
 		return (
-			<div style = {style} >{props.answer}</div>
+			<div style = {style} className="repeat-form__message repeat-form__message_wrong">Правильный ответ: {props.answer}</div>
 		);
 	}
 }
+
+class Note extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			app: props.app,
+		}
+	}
+
+	showNote() {
+		this.state.app.setState({
+			note: {
+				show: true
+			}
+		});
+
+		/*var timer = setTimeout(() => {
+			this.state.app.setState({
+				note: {
+					show: true
+				}
+			});
+		}, 4000);*/
+	}
+
+	render() {
+		var style = {};
+		//this.showNote();
+
+		if (this.state.app.state.note.show) {
+			style.display = 'block';
+		} else {
+			style.display = 'none';
+		}
+
+		return (
+			<div className="note" style = {style} >{this.state.app.state.note.message}</div>
+		);
+	}
+};
 
 ReactDOM.render(<App />, document.getElementById('app'));

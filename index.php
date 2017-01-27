@@ -30,9 +30,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Карты</title>
-	<style>
-		
-	</style>
+	<link rel="stylesheet" href="/dist/css/style.css">
 </head>
 <body>
 	<div id="app"></div>

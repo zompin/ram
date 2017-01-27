@@ -1,0 +1,198 @@
+body {
+	margin: 0;
+	font-size: 16px;
+	font-family: Calibri, sans-serif;
+}
+
+.button {
+	cursor: pointer;
+	padding: 0;
+	font-size: inherit;
+	font-family: inherit;
+}
+
+.textarea {
+	resize: none;
+}
+
+#app {
+	background-color: #ddd;
+	overflow: hidden;
+}
+
+.panel {
+	background-color: #4286f4;
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+
+	&__inner {
+		max-width: 1000px;
+		margin: auto;
+		padding: 10px;
+	}
+
+	&__button {
+		background-color: #fff;
+		border: none;
+		border: 1px solid #fff;
+		margin-right: 10px;
+		width: 150px;
+	}
+}
+
+.cards {
+	max-width: 1000px;
+	margin: 65px auto 30px;
+	background-color: #fff;
+}
+
+.add-form {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	justify-content: center;
+	align-items: center;
+
+	&__close-div {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+	}
+
+	&__form {
+		background-color: #fff;
+		padding: 40px;
+		position: relative;
+	}
+
+	&__textarea {
+		display: block;
+		width: 200px;
+		margin-bottom: 15px;
+	}
+
+	&__button {
+		&_close {
+			border: none;
+			background-color: #fff;
+			position: absolute;
+			top: 5px;
+			right: 10px;
+			font-size: 2em;
+		}
+
+		&_add {
+			color: #fff;
+			background-color: #4286f4;
+			width: 100px;
+			border: none;
+		}
+	}
+}
+
+.repeat-form {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	justify-content: center;
+	align-items: center;
+
+	&__close-div {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		background-color: rgba(0, 0, 0, .6);
+	}
+
+	&__inner {
+		background-color: #fff;
+		position: relative;
+		padding: 40px;
+	}
+
+	&__question {
+		margin-bottom: 15px;
+	}
+
+	&__message {
+		margin-bottom: 15px;
+
+		&_right {
+			color: #0f0;
+		}
+
+		&_wrong {
+			color: #f00;
+		}
+	}
+
+	&__button {
+		&_close {
+			border: none;
+			font-size: 2em;
+			background-color: #fff;
+			position: absolute;
+			top: 5px;
+			right: 10px;
+		}
+
+		&_check {
+			border: none;
+			background-color: #4286f4;
+			color: #fff;
+			width: 100px;
+		}
+	}
+
+	&__input {
+		font-size: 16px;
+		display: block;
+		width: 200px;
+		margin-bottom: 15px;
+	}
+}
+
+
+.card {
+	display: flex;
+	padding: 10px;
+
+	&:hover {
+		background-color: #4286f4;
+		color: #fff;
+	}
+
+	&__question {
+		flex-basis: 200px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	&__answer {
+		flex-basis: 200px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	&__progress {
+		width: 90px;
+		background-color: #f00;
+		overflow: hidden;
+
+		&-scale {
+			height: 100%;
+			background-color: #0f0;
+		}
+	}
+}
