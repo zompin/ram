@@ -24,7 +24,7 @@ gulp.task('bs', function() {
 	bs.init({
 		notify: false,
 		proxy: 'ram',
-		files: ['./*.php', './dist/js/*.js', './dist/css/*.css']
+		files: ['./*.php', './core/*.php', './dist/js/*.js', './dist/css/*.css']
 	});
 });
 

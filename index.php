@@ -18,6 +18,9 @@
 			case 'getCardsForRepeat':
 				getCardsForRepeat();
 			break;
+			case 'repeatCard':
+				repeatCard();
+			break;
 		}
 
 		exit();

@@ -1,31 +1,23 @@
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.updateAllCards = this.updateAllCards.bind(this);
+		this.getAllCards = this.getAllCards.bind(this);
 		this.getCardsForRepeat = this.getCardsForRepeat.bind(this);
+		this.getAllCards();
+		this.getCardsForRepeat();
 		this.state = {
-			showAddForm: false,
 			addForm: {
 				show: false
 			},
 			cards: [],
 			cardsForRepeat: [],
-			indexRepeatCard: 0
-			/*cards: [{
-				id: 1,
-				question: 'a',
-				answer: 'b'
-			}, {
-				id: 2,
-				question: 'b',
-				answer: 'a'
-			}]*/
+			repeatForm: {
+				show: false
+			}
 		};
-		this.updateAllCards();
-		this.getCardsForRepeat();
 	}
 
-	updateAllCards() {
+	getAllCards() {
 		$.ajax({
 			url: '/index.php',
 			type: 'POST',
@@ -48,6 +40,7 @@ class App extends React.Component {
 			},
 			success: data => {
 				data = JSON.parse(data);
+				console.log(data, 'req')
 				this.setState({cardsForRepeat: data});
 			}
 		});
@@ -58,6 +51,7 @@ class App extends React.Component {
 			<div>
 				<Panel app = {this} />
 				<AddForm app = {this} />
+				<RepeatForm app = {this} />
 				<Cards app = {this} />
 			</div>
 		);
@@ -68,6 +62,7 @@ class Panel extends React.Component {
 	constructor(props) {
 		super(props);
 		this.showAddForm = this.showAddForm.bind(this);
+		this.showRepearForm = this.showRepearForm.bind(this);
 		this.state = {
 			app: props.app
 		};
@@ -81,11 +76,19 @@ class Panel extends React.Component {
 		});
 	}
 
+	showRepearForm() {
+		this.state.app.setState({
+			repeatForm: {
+				show: true
+			}
+		});
+	}
+
 	render() {
 		return (
 			<div id="panel">
-				<button>Тренироваться</button>
-				<button onClick={this.showAddForm}>Добавить</button>
+				<button onClick= {this.showRepearForm} >Тренироваться</button>
+				<button onClick= {this.showAddForm} >Добавить</button>
 			</div>
 		);
 	}
@@ -132,12 +135,14 @@ class AddForm extends React.Component {
 		e.preventDefault();
 	}
 
-	hideForm() {
+	hideForm(e) {
 		this.state.app.setState({
 			addForm: {
 				show: false
 			}
 		});
+
+		e.preventDefault();
 	}
 
 	render() {
@@ -203,10 +208,16 @@ class RepeatForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.answerChange = this.answerChange.bind(this);
+		this.closeRepeatForm = this.closeRepeatForm.bind(this);
 		this.checkAnswer = this.checkAnswer.bind(this);
 		this.state = {
 			app: props.app,
-			answer: ''
+			answer: '',
+			showMessage: false,
+			indexRepeatCard: 0,
+			correct: false,
+			correctAnswer: '',
+			cheked: false
 		}
 	}
 
@@ -214,34 +225,114 @@ class RepeatForm extends React.Component {
 		this.setState({answer: e.target.value});
 	}
 
+	closeRepeatForm() {
+		this.state.app.setState({
+			repeatForm: {
+				show: false
+			}
+		});
+		
+		this.setState({
+			checked: false,
+			showMessage: false,
+			indexRepeatCard: 0
+		});
+	}
+
 	checkAnswer(e) {
-		if (e.keyCode == 10 || e.keyCode == 13) {
-			var index = this.state.app.state.indexRepeatCard;
-			var answer = this.state.app.state.cardsForRepeat[index];
+		var type = e.type;
+		var index = this.state.indexRepeatCard;
+		var question = this.state.app.state.cardsForRepeat[index].question;
+		var answer = this.state.app.state.cardsForRepeat[index].answer;
+		var data = {
+			url: '/index.php',
+			action: 'repeatCard'
+		};
 
-			if (answer == this.state.answer) {
+		if (type == 'click' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
+			if (this.state.checked) {
+				index++;
 
+				if (index >= this.state.app.state.cardsForRepeat.length) {
+					this.closeRepeatForm();
+					return;
+				}
+
+				this.setState({
+					checked: false,
+					indexRepeatCard: index,
+					showMessage: false
+				});
+			}
+
+			if (answer.toLowerCase() == this.state.answer.toLowerCase()) {
+				this.setState({
+					correct: true,
+					showMessage: true,
+					checked: true
+				});
+			} else {
+				this.setState({
+					correct: false,
+					showMessage: true,
+					correctAnswer: answer
+				});
 			}
 		}
+
 	}
 
 	render() {
+		var style = {};
+		var index = this.state.indexRepeatCard;
+		var question = '';
+		var cards = this.state.app.state.cardsForRepeat;
+
+		console.log(cards, index)
+
+		if (cards.length > 0) {
+			question = cards[index].question;
+		}
+
+
+		if (this.state.app.state.repeatForm.show) {
+			style.display = 'block';
+		} else {
+			style.display = 'none';
+		}
+
 		return (
-			<div>
-				<div>Вопрос</div>
-				<div></div>
+			<div style = {style} >
+				<div>{question}</div>
+				<RepeatFormMessage show = {this.state.showMessage} correct = {this.state.correct} answer = {this.state.correctAnswer} />
 				<div>
 					<input onChange = {this.answerChange} onKeyDown = {this.checkAnswer} />
 				</div>
-				<button>Проверить</button>
-				<button>Далее</button>
+				<button onClick = {this.checkAnswer} >Проверить</button>
+				<button onClick= {this.closeRepeatForm} >Закрыть</button>
 			</div>
 		);
 	}
 };
 
 function RepeatFormMessage(props) {
-	
+	var style = {};
+
+	if (props.show) {
+		style.display = 'block';
+	} else {
+		style.display = 'none';
+	}
+
+	if (props.correct) {
+		return (
+			<div style = {style} >Верно</div>
+		);
+	} else {
+		return (
+			<div style = {style} >{props.answer}</div>
+		);
+	}
 }
 
 ReactDOM.render(<App />, document.getElementById('app'));
