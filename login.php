@@ -6,7 +6,7 @@
 		$login = $_POST['login'];
 		$password = $_POST['password'];
 
-		if ($login == 'root' && $password == '00000') {
+		if ($login == $loginRef && $password == $passwordRef) {
 			$_SESSION['logged'] = true;
 		}
 	}
