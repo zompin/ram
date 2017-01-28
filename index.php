@@ -21,6 +21,9 @@
 			case 'repeatCard':
 				repeatCard();
 			break;
+			case 'removeCard':
+				removeCard();
+			break;
 		}
 
 		exit();

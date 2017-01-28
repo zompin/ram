@@ -78,15 +78,15 @@
 			$query 	= "
 				(SELECT * FROM `cards` WHERE `repeat` = 0)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 1 AND last_update > $now - $m20)
+				(SELECT * FROM `cards` WHERE `repeat` = 1 AND last_update < $now - $m20)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 2 AND last_update > $now - $h8)
+				(SELECT * FROM `cards` WHERE `repeat` = 2 AND last_update < $now - $h8)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 3 AND last_update > $now - $d1)
+				(SELECT * FROM `cards` WHERE `repeat` = 3 AND last_update < $now - $d1)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 4 AND last_update > $now - $w2)
+				(SELECT * FROM `cards` WHERE `repeat` = 4 AND last_update < $now - $w2)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 5 AND last_update > $now - $m2)
+				(SELECT * FROM `cards` WHERE `repeat` = 5 AND last_update < $now - $m2)
 			;";
 			$res = $mysqli->query($query);
 		}
@@ -105,8 +105,6 @@
 	function repeatCard() {
 		$id = $_POST['id'] * 1;
 		$repeat = $_POST['repeat'] * 1;
-		$success = $_POST['success'];
-		$last_update = $_POST['last_update'] * 1;
 
 		global $db;
 		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
@@ -116,14 +114,25 @@
 		} else {
 			$mysqli->set_charset('utf8');
 
-			if ($success) {
-				$now = time();
-				$repeat++;
-				$query = "UPDATE `cards` SET `repeat` = '$repeat', `last_update` = $now WHERE id = $id;";
-			} else {
-				$query = "UPDATE `cards` SET `last_update` = '$last_update';";
-			}
+			$now = time();
+			$repeat++;
+			$query = "UPDATE `cards` SET `repeat` = '$repeat', `last_update` = '$now' WHERE id = $id;";
 			
+			echo $mysqli->query($query);
+		}
+	}
+
+	function removeCard() {
+		$id = $_POST['id'] * 1;
+		global $db;
+
+		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+
+		if (mysqli_connect_errno()) {
+			serverError();
+		} else {
+			$mysqli->set_charset('utf8');
+			$query = "DELETE FROM `cards` WHERE `id` = $id;";
 			echo $mysqli->query($query);
 		}
 	}

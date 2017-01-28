@@ -3,8 +3,7 @@ class App extends React.Component {
 		super(props);
 		this.getAllCards = this.getAllCards.bind(this);
 		this.getCardsForRepeat = this.getCardsForRepeat.bind(this);
-		this.getAllCards();
-		this.getCardsForRepeat();
+		this.getCards();
 		this.state = {
 			addForm: {
 				show: false
@@ -44,10 +43,14 @@ class App extends React.Component {
 			},
 			success: data => {
 				data = JSON.parse(data);
-				console.log(data, 'req')
 				this.setState({cardsForRepeat: data});
 			}
 		});
+	}
+
+	getCards() {
+		this.getAllCards();
+		this.getCardsForRepeat();
 	}
 
 	render() {
@@ -55,7 +58,7 @@ class App extends React.Component {
 			<div id="app">
 				<Panel app = {this} />
 				<AddForm app = {this} />
-				<RepeatForm app = {this} />
+				<Repeat app = {this} />
 				<Cards app = {this} />
 				<Note app = {this} />
 			</div>
@@ -108,7 +111,7 @@ class AddForm extends React.Component {
 		this.answerChange 	= this.answerChange.bind(this);
 		this.onAdd 			= this.onAdd.bind(this);
 		this.hideForm		= this.hideForm.bind(this);
-		this.onEnter = this.onEnter.bind(this);
+		this.onEnter 		= this.onEnter.bind(this);
 		this.state = {
 			answer: '',
 			question: '',
@@ -136,26 +139,40 @@ class AddForm extends React.Component {
 			type: 'POST',
 			data: data,
 			success: data => {
-				console.log(data)
+				console.log(data);
 			}
 		});
+
+		if (e.nativeEvent.ctrlKey) {
+			this.setState({
+				answer: '',
+				question: ''
+			});
+		} else {
+			this.hideForm(e);
+		}
 
 		e.preventDefault();
 	}
 
 	onEnter(e) {
-		console.log(12121)
 		if (e.keyCode == 10 || e.keyCode == 13) {
 			this.onAdd(e);
 		}
 	}
 
 	hideForm(e) {
+		this.setState({
+			question: '',
+			answer: ''
+		});
 		this.state.app.setState({
 			addForm: {
 				show: false
 			}
 		});
+
+		this.state.app.getCards();
 
 		e.preventDefault();
 	}
@@ -166,16 +183,33 @@ class AddForm extends React.Component {
 		if (this.state.app.state.addForm.show) {
 			style.display = 'flex';
 		} else {
-			style.display = 'none'
+			style.display = 'none';
 		}
 
 		return (
 			<div style = {style} className="add-form">
 				<div className="add-form__close-div" onClick = {this.hideForm} />
 				<form onSubmit = {this.onAdd} className="add-form__form">
-					<button className="button add-form__button add-form__button_close" onClick = {this.hideForm} >&times;</button>
-					<textarea className="textarea add-form__textarea" id="question" onChang = {this.questionChange} onKeyDown = {this.onEnter} ></textarea>
-					<textarea className="textarea add-form__textarea" id="answer" onChange = {this.answerChange} onKeyDown = {this.onEnter} ></textarea>
+					<button 
+						className="button add-form__button add-form__button_close" 
+						onClick = {this.hideForm} 
+					>&times;</button>
+					<textarea 
+						className="textarea add-form__textarea" 
+						id="question" 
+						onChange = {this.questionChange} 
+						onKeyDown = {this.onEnter} 
+						placeholder="Вопрос"
+						value = {this.state.question}
+					></textarea>
+					<textarea 
+						className="textarea add-form__textarea" 
+						id="answer" 
+						onChange = {this.answerChange} 
+						onKeyDown = {this.onEnter} 
+						placeholder="Ответ"
+						value = {this.state.answer}
+					></textarea>
 					<button className="button add-form__button add-form__button_add" type="submit">Добавить</button>
 				</form>
 			</div>
@@ -186,9 +220,27 @@ class AddForm extends React.Component {
 class Cards extends React.Component {
 	constructor(props) {
 		super(props);
+		this.removeCard = this.removeCard.bind(this);
 		this.state = {
 			app: props.app
 		};
+	}
+
+	removeCard(id) {
+		return () => {
+			$.ajax({
+				url: '/index.php',
+				type: 'POST',
+				data: {
+					action: 'removeCard',
+					id: id
+				},
+				success: data => {
+					console.log(data)
+					this.state.app.getCards();
+				}
+			});
+		}
 	}
 
 	render() {
@@ -196,12 +248,12 @@ class Cards extends React.Component {
 
 		if (cards.length == 0) {
 			return (
-				<div>Нет карт</div>
+				<div className="cards">Нет карт</div>
 			);
 		}
 
 		cards = cards.map(card => {
-			return <Card item = {card} />
+			return <Card item = {card} delete = {this.removeCard} />
 		});
 
 		return (
@@ -224,11 +276,14 @@ function Card(props) {
 			<div className="card__progress">
 				<div className="card__progress-scale" style = {style} ></div>
 			</div>
+			<div className="card__control">
+				<button onClick = {props.delete(props.item.id)} >&times;</button>
+			</div>
 		</div>
 	);
 }
 
-class RepeatForm extends React.Component {
+class Repeat extends React.Component {
 	constructor(props) {
 		super(props);
 		this.answerChange = this.answerChange.bind(this);
@@ -267,11 +322,8 @@ class RepeatForm extends React.Component {
 		var type = e.type;
 		var index = this.state.indexRepeatCard;
 		var question = this.state.app.state.cardsForRepeat[index].question;
-		var answer = this.state.app.state.cardsForRepeat[index].answer;
-		var data = {
-			url: '/index.php',
-			action: 'repeatCard'
-		};
+		var card = this.state.app.state.cardsForRepeat[index];
+		var answer = card.answer;
 
 		if (type == 'click' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
 			if (this.state.checked) {
@@ -279,14 +331,31 @@ class RepeatForm extends React.Component {
 
 				if (index >= this.state.app.state.cardsForRepeat.length) {
 					this.closeRepeatForm();
-					return;
+					index = this.state.app.state.cardsForRepeat.length - 1;
 				}
 
 				this.setState({
 					checked: false,
 					indexRepeatCard: index,
-					showMessage: false
+					showMessage: false,
+					answer: ''
 				});
+
+				$.ajax({
+					url: '/index.php',
+					type: 'POST',
+					data: {
+						action: 'repeatCard',
+						id: card.id,
+						repeat: card.repeat,
+						last_update: card.last_update
+					},
+					success: data => {
+						this.state.app.getCards();
+					}
+				});
+
+				return;
 			}
 
 			if (answer.toLowerCase() == this.state.answer.toLowerCase()) {
@@ -307,38 +376,64 @@ class RepeatForm extends React.Component {
 	}
 
 	render() {
-		var style = {};
+		var formStyle = {};
 		var index = this.state.indexRepeatCard;
 		var question = '';
 		var cards = this.state.app.state.cardsForRepeat;
-
-		console.log(cards, index)
 
 		if (cards.length > 0) {
 			question = cards[index].question;
 		}
 
-
 		if (this.state.app.state.repeatForm.show) {
-			style.display = 'flex';
+			formStyle.display = 'flex';
 		} else {
-			style.display = 'none';
+			formStyle.display = 'none';
 		}
 
 		return (
-			<div style = {style} className="repeat-form">
+			<div style = {formStyle} className="repeat-form">
 				<div className="repeat-form__close-div" onClick = {this.closeRepeatForm} ></div>
-				<div className="repeat-form__inner">
-					<div className="repeat-form__question">{question}</div>
-					<RepeatFormMessage show = {this.state.showMessage} correct = {this.state.correct} answer = {this.state.correctAnswer} />
-					<input onChange = {this.answerChange} onKeyDown = {this.checkAnswer} className="repeat-form__input"/>
-					<button onClick = {this.checkAnswer} className="button repeat-form__button repeat-form__button_check">Проверить</button>
-					<button onClick= {this.closeRepeatForm} className="button repeat-form__button repeat-form__button_close">&times;</button>
-				</div>
+				<RepeatForm repeat = {this} question = {question} haveCards = {cards.length > 0}/>
 			</div>
 		);
 	}
 };
+
+function RepeatForm(props) {
+	var repeat = props.repeat;
+
+	if (props.haveCards) {
+		return (
+			<div className="repeat-form__inner">
+				<div className="repeat-form__question">{props.question}</div>
+				<RepeatFormMessage 
+					show = {repeat.state.showMessage} 
+					correct = {repeat.state.correct} 
+					answer = {repeat.state.correctAnswer} 
+				/>
+				<input 
+					onChange = {repeat.answerChange} 
+					onKeyDown = {repeat.checkAnswer} 
+					className="repeat-form__input" 
+					value = {repeat.state.answer} 
+				/>
+				<button 
+					onClick = {repeat.checkAnswer} 
+					className="button repeat-form__button repeat-form__button_check"
+				>Проверить</button>
+				<button 
+					onClick= {repeat.closeRepeatForm} 
+					className="button repeat-form__button repeat-form__button_close"
+				>&times;</button>
+			</div>
+		);
+	} else {
+		return (
+			<div className="repeat-form__inner">Нет слов для повтора</div>
+		);
+	}
+}
 
 function RepeatFormMessage(props) {
 	var style = {};
