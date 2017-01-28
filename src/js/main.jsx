@@ -293,7 +293,6 @@ class Repeat extends React.Component {
 			app: props.app,
 			answer: '',
 			showMessage: false,
-			indexRepeatCard: 0,
 			correct: false,
 			correctAnswer: '',
 			cheked: false
@@ -313,30 +312,25 @@ class Repeat extends React.Component {
 		
 		this.setState({
 			checked: false,
-			showMessage: false,
-			indexRepeatCard: 0
+			showMessage: false
 		});
 	}
 
 	checkAnswer(e) {
 		var type = e.type;
-		var index = this.state.indexRepeatCard;
-		var question = this.state.app.state.cardsForRepeat[index].question;
-		var card = this.state.app.state.cardsForRepeat[index];
+		var card = this.state.app.state.cardsForRepeat[0];
+		var question = card.question;
 		var answer = card.answer;
 
 		if (type == 'click' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
 			if (this.state.checked) {
-				index++;
 
-				if (index >= this.state.app.state.cardsForRepeat.length) {
+				if (!card) {
 					this.closeRepeatForm();
-					index = this.state.app.state.cardsForRepeat.length - 1;
 				}
 
 				this.setState({
 					checked: false,
-					indexRepeatCard: index,
 					showMessage: false,
 					answer: ''
 				});
@@ -377,12 +371,11 @@ class Repeat extends React.Component {
 
 	render() {
 		var formStyle = {};
-		var index = this.state.indexRepeatCard;
 		var question = '';
 		var cards = this.state.app.state.cardsForRepeat;
 
 		if (cards.length > 0) {
-			question = cards[index].question;
+			question = cards[0].question;
 		}
 
 		if (this.state.app.state.repeatForm.show) {
