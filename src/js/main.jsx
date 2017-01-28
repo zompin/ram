@@ -3,6 +3,8 @@ class App extends React.Component {
 		super(props);
 		this.getAllCards = this.getAllCards.bind(this);
 		this.getCardsForRepeat = this.getCardsForRepeat.bind(this);
+		this.getCards = this.getCards.bind(this);
+		this.interval = setInterval(this.getCards, 5000);
 		this.getCards();
 		this.state = {
 			addForm: {
@@ -51,6 +53,7 @@ class App extends React.Component {
 	getCards() {
 		this.getAllCards();
 		this.getCardsForRepeat();
+		console.log('getCards')
 	}
 
 	render() {
@@ -77,6 +80,7 @@ class Panel extends React.Component {
 	}
 
 	showAddForm() {
+		clearInterval(this.state.app.interval);
 		this.state.app.setState({
 			addForm: {
 				show: true
@@ -85,6 +89,7 @@ class Panel extends React.Component {
 	}
 
 	showRepeatForm() {
+		clearInterval(this.state.app.interval);
 		this.state.app.setState({
 			repeatForm: {
 				show: true
@@ -112,6 +117,7 @@ class AddForm extends React.Component {
 		this.onAdd 			= this.onAdd.bind(this);
 		this.hideForm		= this.hideForm.bind(this);
 		this.onEnter 		= this.onEnter.bind(this);
+		this.questionFocus 	= this.questionFocus.bind(this);
 		this.state = {
 			answer: '',
 			question: '',
@@ -173,8 +179,13 @@ class AddForm extends React.Component {
 		});
 
 		this.state.app.getCards();
+		this.state.app.interval = setInterval(this.state.app.getCards, 5000);
 
 		e.preventDefault();
+	}
+
+	questionFocus() {
+		this.questionEl.focus();
 	}
 
 	render() {
@@ -182,6 +193,7 @@ class AddForm extends React.Component {
 
 		if (this.state.app.state.addForm.show) {
 			style.display = 'flex';
+			clearInterval(this.state.app.interval);
 		} else {
 			style.display = 'none';
 		}
@@ -201,6 +213,7 @@ class AddForm extends React.Component {
 						onKeyDown = {this.onEnter} 
 						placeholder="Вопрос"
 						value = {this.state.question}
+						ref = {el => {this.questionEl = el;}}
 					></textarea>
 					<textarea 
 						className="textarea add-form__textarea" 
@@ -277,7 +290,7 @@ function Card(props) {
 				<div className="card__progress-scale" style = {style} ></div>
 			</div>
 			<div className="card__control">
-				<button onClick = {props.delete(props.item.id)} >&times;</button>
+				{/*<button onClick = {props.delete(props.item.id)} >&times;</button>*/}
 			</div>
 		</div>
 	);
@@ -314,11 +327,15 @@ class Repeat extends React.Component {
 			checked: false,
 			showMessage: false
 		});
+
+		this.state.app.getCards();
+		this.state.app.interval = setInterval(this.state.app.getCards, 5000);
 	}
 
 	checkAnswer(e) {
 		var type = e.type;
-		var card = this.state.app.state.cardsForRepeat[0];
+		var cards = this.state.app.state.cardsForRepeat; 
+		var card = cards[0];
 		var question = card.question;
 		var answer = card.answer;
 
@@ -329,6 +346,12 @@ class Repeat extends React.Component {
 					this.closeRepeatForm();
 				}
 
+				cards.shift();
+
+				this.state.app.setState({
+					cardsForRepeat: cards
+				});
+				
 				this.setState({
 					checked: false,
 					showMessage: false,
@@ -345,7 +368,7 @@ class Repeat extends React.Component {
 						last_update: card.last_update
 					},
 					success: data => {
-						this.state.app.getCards();
+						//this.state.app.getCards();
 					}
 				});
 
