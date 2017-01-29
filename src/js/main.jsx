@@ -103,6 +103,9 @@ class Panel extends React.Component {
 				<div className="panel__inner">
 					<button className="button panel__button" onClick= {this.showRepeatForm} >Тренироваться</button>
 					<button className="button panel__button" onClick= {this.showAddForm} >Добавить</button>
+					<div className="panel__unrepeated">
+						Слов для повтора: {this.state.app.state.cardsForRepeat.length}
+					</div>
 				</div>
 			</div>
 		);
@@ -290,7 +293,7 @@ function Card(props) {
 				<div className="card__progress-scale" style = {style} ></div>
 			</div>
 			<div className="card__control">
-				{/*<button onClick = {props.delete(props.item.id)} >&times;</button>*/}
+				<button onClick = {props.delete(props.item.id)} >&times;</button>
 			</div>
 		</div>
 	);
