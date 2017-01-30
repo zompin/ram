@@ -15,6 +15,7 @@
 		$mysqli 	= new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
 		$question 	= $_POST['question'];
 		$answer 	= $_POST['answer'];
+
 		if (mysqli_connect_errno()) {
 			serverError();
 		} else {
@@ -22,8 +23,9 @@
 			$question 	= $mysqli->real_escape_string($question);
 			$answer 	= $mysqli->real_escape_string($answer);
 			$lastUpdate	= time();
-			$query = "INSERT INTO cards SET question='$question', answer='$answer', last_update='$lastUpdate';";
-			$res = $mysqli->query($query);
+			$user 		= $_SESSION['user']['id'] * 1;
+			$query 		= "INSERT INTO cards SET question='$question', answer='$answer', last_update='$lastUpdate', user=$user;";
+			$res 		= $mysqli->query($query);
 
 			if ($res) {
 				echo json_encode(true);
@@ -36,14 +38,15 @@
 	function getAllCards() {
 		global $db;
 		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
-		$cards = array();
-		$res = false;
+		$cards 	= array();
+		$res 	= false;
+		$user 	= $_SESSION['user']['id'] * 1;
 
 		if ($mysqli->connect_errno) {
 			serverError();
 		} else {
 			$mysqli->set_charset('utf8');
-			$query = "SELECT * FROM cards ORDER BY `repeat`;";
+			$query = "SELECT `id`, `question`, `answer`, `repeat` FROM cards WHERE user=$user ORDER BY `repeat`;";
 			$res = $mysqli->query($query);
 		}
 
@@ -65,6 +68,7 @@
 		$cards 	= array();
 		$res 	= false;
 		$now	= time();
+		$user 	= $_SESSION['user']['id'] * 1;
 
 		if (mysqli_connect_errno()) {
 			serverError();
@@ -76,17 +80,17 @@
 			$w2 	= SECONDS_PER_DAY * 14;
 			$m2 	= SECONDS_PER_MONTH * 2;
 			$query 	= "
-				(SELECT * FROM `cards` WHERE `repeat` = 0)
+				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 0 AND user = $user)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 1 AND last_update < $now - $m20)
+				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 1 AND last_update < $now - $m20 AND user = $user)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 2 AND last_update < $now - $h8)
+				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 2 AND last_update < $now - $h8 AND user = $user)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 3 AND last_update < $now - $d1)
+				(SELECT `id`, question, `answer`, `repeat` FROM `cards` WHERE `repeat` = 3 AND last_update < $now - $d1 AND user = $user)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 4 AND last_update < $now - $w2)
+				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 4 AND last_update < $now - $w2 AND user = $user)
 				UNION
-				(SELECT * FROM `cards` WHERE `repeat` = 5 AND last_update < $now - $m2)
+				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 5 AND last_update < $now - $m2 AND user = $user)
 			;";
 			$res = $mysqli->query($query);
 		}
@@ -103,10 +107,10 @@
 	}
 
 	function repeatCard() {
-		$id = $_POST['id'] * 1;
-		$repeat = $_POST['repeat'] * 1;
-
 		global $db;
+		$id 	= $_POST['id'] * 1;
+		$repeat = $_POST['repeat'] * 1;
+		$user 	= $_SESSION['user']['id'] * 1;
 		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
 
 		if (mysqli_connect_errno()) {
@@ -116,24 +120,49 @@
 
 			$now = time();
 			$repeat++;
-			$query = "UPDATE `cards` SET `repeat` = '$repeat', `last_update` = '$now' WHERE id = $id;";
+			$query = "UPDATE `cards` SET `repeat` = '$repeat', `last_update` = '$now' WHERE id = $id AND user = $user;";
 			
 			echo $mysqli->query($query);
 		}
 	}
 
 	function removeCard() {
-		$id = $_POST['id'] * 1;
 		global $db;
-
+		$id 	= $_POST['id'] * 1;
+		$user 	= $_SESSION['user']['id'] * 1;
 		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
 
 		if (mysqli_connect_errno()) {
 			serverError();
 		} else {
 			$mysqli->set_charset('utf8');
-			$query = "DELETE FROM `cards` WHERE `id` = $id;";
+			$query = "DELETE FROM `cards` WHERE `id` = $id AND user = $user;";
 			echo $mysqli->query($query);
+		}
+	}
+
+	function login() {
+		global $db;
+		$login 		= $_POST['login'];
+		$password 	= $_POST['password'];
+		$mysqli 	= new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$res 		= false;
+
+		if (mysqli_connect_errno()) {
+			return $res;
+		} else {
+			$mysqli->set_charset('utf8');
+			$login 		= $mysqli->real_escape_string($login);
+			$password 	= $mysqli->real_escape_string($password);
+			$query 		= "SELECT * FROM `users` WHERE login = '$login' AND password = '$password';";
+
+			$res = $mysqli->query($query);
+		}
+
+		if ($res) {
+			return $res->fetch_assoc();
+		} else {
+			return $res;
 		}
 	}
 ?>

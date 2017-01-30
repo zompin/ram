@@ -4,7 +4,7 @@ class App extends React.Component {
 		this.getAllCards = this.getAllCards.bind(this);
 		this.getCardsForRepeat = this.getCardsForRepeat.bind(this);
 		this.getCards = this.getCards.bind(this);
-		this.interval = setInterval(this.getCards, 5000);
+		this.interval = setInterval(this.getCards, 10000);
 		this.getCards();
 		this.state = {
 			addForm: {
@@ -182,7 +182,7 @@ class AddForm extends React.Component {
 		});
 
 		this.state.app.getCards();
-		this.state.app.interval = setInterval(this.state.app.getCards, 5000);
+		this.state.app.interval = setInterval(this.state.app.getCards, 10000);
 
 		e.preventDefault();
 	}
@@ -332,7 +332,7 @@ class Repeat extends React.Component {
 		});
 
 		this.state.app.getCards();
-		this.state.app.interval = setInterval(this.state.app.getCards, 5000);
+		this.state.app.interval = setInterval(this.state.app.getCards, 10000);
 	}
 
 	checkAnswer(e) {

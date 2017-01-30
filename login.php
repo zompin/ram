@@ -3,11 +3,12 @@
 	session_start();
 
 	if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-		$login = $_POST['login'];
-		$password = $_POST['password'];
 
-		if ($login == $loginRef && $password == $passwordRef) {
+		$user = login();
+
+		if ($user) {
 			$_SESSION['logged'] = true;
+			$_SESSION['user'] = $user;
 		}
 	}
 
