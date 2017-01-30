@@ -342,6 +342,9 @@ class Repeat extends React.Component {
 		var question = card.question;
 		var answer = card.answer;
 
+		answer = answer.replace(/\s*,\s*/g, ',').toLowerCase();
+		answer = answer.split(',');
+
 		if (type == 'click' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
 			if (this.state.checked) {
 
@@ -378,7 +381,7 @@ class Repeat extends React.Component {
 				return;
 			}
 
-			if (answer.toLowerCase() == this.state.answer.toLowerCase()) {
+			if (answer.indexOf(this.state.answer.toLowerCase()) != -1 ) {
 				this.setState({
 					correct: true,
 					showMessage: true,
@@ -388,7 +391,7 @@ class Repeat extends React.Component {
 				this.setState({
 					correct: false,
 					showMessage: true,
-					correctAnswer: answer
+					correctAnswer: card.answer
 				});
 			}
 		}
