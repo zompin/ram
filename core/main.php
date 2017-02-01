@@ -165,4 +165,8 @@
 			return $res;
 		}
 	}
+
+	function getUserName() {
+		echo $_SESSION['user']['login'];
+	}
 ?>

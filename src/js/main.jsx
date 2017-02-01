@@ -6,6 +6,7 @@ class App extends React.Component {
 		this.getCards = this.getCards.bind(this);
 		this.interval = setInterval(this.getCards, 10000);
 		this.getCards();
+		this.getUserName();
 		this.state = {
 			addForm: {
 				show: false
@@ -18,7 +19,8 @@ class App extends React.Component {
 			note: {
 				show: false,
 				message: ''
-			}
+			},
+			userName: ''
 		};
 	}
 
@@ -54,6 +56,19 @@ class App extends React.Component {
 		this.getAllCards();
 		this.getCardsForRepeat();
 		console.log('getCards')
+	}
+
+	getUserName() {
+		$.ajax({
+			url: '/index.php',
+			method: 'POST',
+			data: {
+				action: 'getUserName'
+			},
+			success: data => {
+				this.setState({userName: data});
+			}
+		});
 	}
 
 	render() {
@@ -105,6 +120,10 @@ class Panel extends React.Component {
 					<button className="button panel__button" onClick= {this.showAddForm} >Добавить</button>
 					<div className="panel__unrepeated">
 						Слов для повтора: {this.state.app.state.cardsForRepeat.length}
+					</div>
+					<div className="user">
+						<div className="user__name">{this.state.app.state.userName}</div>
+						<a className="user__exit" href="/index.php?action=exit">Выйти</a>
 					</div>
 				</div>
 			</div>

@@ -24,9 +24,21 @@
 			case 'removeCard':
 				removeCard();
 			break;
+			case 'getUserName':
+				getUserName();
+			break;
 		}
 
 		exit();
+	}
+
+	if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+		if (isset($_GET['action'])) {
+			if ($_GET['action'] == 'exit') {
+				session_destroy();
+				header('location: /login.php');
+			}
+		}
 	}
 ?><!DOCTYPE html>
 <html lang="ru">
