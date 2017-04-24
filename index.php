@@ -1,6 +1,5 @@
 <?php
 	include $_SERVER['DOCUMENT_ROOT'] . '/core/main.php';
-	include $_SERVER['DOCUMENT_ROOT'] . '/core/action.php';
 	session_start();
 
 	if (!$_SESSION['logged']) {

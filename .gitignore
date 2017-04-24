@@ -1,4 +1,4 @@
 node_modules
 dist/*.*
 dist/*
-core/config.php
+config.php

@@ -1,5 +1,5 @@
 <?php
-	include $_SERVER['DOCUMENT_ROOT'] . '/core/config.php';
+	include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
 	define(SECONDS_PER_MINUTE, 	60);
 	define(SECONDS_PER_HOUR, 	3600);
