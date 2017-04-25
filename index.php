@@ -11,6 +11,9 @@
 			case 'addCard':
 				addCard();
 			break;
+			case 'resetCard':
+				resetCard();
+			break;
 			case 'getAllCards':
 				getAllCards();
 			break;

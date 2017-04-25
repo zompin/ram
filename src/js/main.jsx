@@ -256,6 +256,7 @@ class Cards extends React.Component {
 	constructor(props) {
 		super(props);
 		this.removeCard = this.removeCard.bind(this);
+		this.resetCard = this.resetCard.bind(this);
 		this.state = {
 			app: props.app
 		};
@@ -278,6 +279,23 @@ class Cards extends React.Component {
 		}
 	}
 
+	resetCard(id) {
+		return () => {
+			$.ajax({
+				url: '/index.php',
+				type: 'POST',
+				data: {
+					action: 'resetCard',
+					id: id
+				},
+				success: data => {
+					console.log(data)
+					this.state.app.getCards();
+				}
+			});
+		}
+	}
+
 	render() {
 		var cards = this.state.app.state.cards;
 
@@ -288,7 +306,7 @@ class Cards extends React.Component {
 		}
 
 		cards = cards.map(card => {
-			return <Card item = {card} delete = {this.removeCard} />
+			return <Card item = {card} delete = {this.removeCard} reset = {this.resetCard} />
 		});
 
 		return (
@@ -312,7 +330,8 @@ function Card(props) {
 				<div className="card__progress-scale" style = {style} ></div>
 			</div>
 			<div className="card__control">
-				<button onClick = {props.delete(props.item.id)} >&times;</button>
+				<button className="card__button" onClick = {props.delete(props.item.id)} >&times;</button>
+				<button className="card__button" onClick = {props.reset(props.item.id)} >Учить снова</button>
 			</div>
 		</div>
 	);

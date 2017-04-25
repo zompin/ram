@@ -35,6 +35,27 @@
 		}
 	}
 
+	function resetCard() {
+		global $db;
+		$mysqli 	= new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$id 		= $_POST['id'] * 1;
+
+		if (mysqli_connect_errno()) {
+			serverError();
+		} else {
+			$mysqli->set_charset('utf8');
+			$user = $_SESSION['user']['id'] * 1;
+			$query = "UPDATE `cards` SET `repeat` = 0 WHERE `id` = $id AND `user` = $user LIMIT 1;";
+			$res = $mysqli->query($query);
+
+			if ($res) {
+				echo json_encode(true);
+			} else {
+				serverError();
+			}
+		}
+	}
+
 	function getAllCards() {
 		global $db;
 		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
