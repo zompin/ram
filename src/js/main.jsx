@@ -330,8 +330,8 @@ function Card(props) {
 				<div className="card__progress-scale" style = {style} ></div>
 			</div>
 			<div className="card__control">
-				<button className="card__button" onClick = {props.delete(props.item.id)} >&times;</button>
 				<button className="card__button" onClick = {props.reset(props.item.id)} >Учить снова</button>
+				<button className="card__button" onClick = {props.delete(props.item.id)} >&times;</button>
 			</div>
 		</div>
 	);
