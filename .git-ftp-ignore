@@ -1,6 +1,8 @@
 src/*.*
 .bowerrc
 .gitignore
+.git-ftp-ignore
+.git-ftp-include
 bower.json
 config.php
 db.sql
