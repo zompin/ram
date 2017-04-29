@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 body {
 	margin: 0;
 	font-size: 16px;
@@ -28,23 +32,37 @@ body {
 	left: 0;
 
 	&__inner {
-		max-width: 1000px;
+		max-width: 700px;
 		margin: auto;
-		padding: 10px;
+		padding: 0 10px 10px 0;
 		position: relative;
+		padding-right: 150px;
+
+		@media all and (max-width: 720px) {
+			padding-left: 10px;
+		}
 	}
 
 	&__button {
 		background-color: #fff;
 		border: none;
 		border: 1px solid #fff;
-		margin-right: 10px;
+		margin: 10px 10px 0 0;
 		width: 150px;
+
+		@media all and (max-width: 460px) {
+			display: block;
+		}
 	}
 
 	&__unrepeated {
 		display: inline-block;
 		color: #fff;
+		margin-top: 10px;
+
+		@media all and (max-width: 620px) {
+			display: block;
+		}
 	}
 }
 
@@ -53,6 +71,7 @@ body {
 	top: 10px;
 	right: 10px;
 	bottom: 10px;
+	max-width: 150px;
 
 	&__name {
 		display: inline-block;
@@ -71,9 +90,17 @@ body {
 }
 
 .cards {
-	max-width: 1000px;
+	max-width: 700px;
 	margin: 65px auto 30px;
 	background-color: #fff;
+
+	@media all and (max-width: 620px) {
+		margin-top: 96px;
+	}
+
+	@media all and (max-width: 480px) {
+		margin-top: 129px;
+	}
 }
 
 .add-form {
@@ -195,6 +222,7 @@ body {
 .card {
 	display: flex;
 	padding: 10px;
+	justify-content: space-between;
 
 	&:hover {
 		background-color: #4286f4;
@@ -217,6 +245,7 @@ body {
 		width: 90px;
 		background-color: #f00;
 		overflow: hidden;
+		height: 23px;
 
 		&-scale {
 			height: 100%;
@@ -226,6 +255,7 @@ body {
 
 	&__control {
 		margin-left: 20px;
+		flex-shrink: 0;
 	}
 
 	&__button {
