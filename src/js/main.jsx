@@ -1,10 +1,12 @@
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.getAllCards = this.getAllCards.bind(this);
-		this.getCardsForRepeat = this.getCardsForRepeat.bind(this);
-		this.getCards = this.getCards.bind(this);
-		this.interval = setInterval(this.getCards, 10000);
+		this.getAllCards 		= this.getAllCards.bind(this);
+		this.getCardsForRepeat 	= this.getCardsForRepeat.bind(this);
+		this.getCards 			= this.getCards.bind(this);
+		this.showAddForm 		= this.showAddForm.bind(this);
+		this.showRepeatForm 	= this.showRepeatForm.bind(this);
+		this.interval 			= setInterval(this.getCards, 10000);
 		this.getCards();
 		this.getUserName();
 		this.state = {
@@ -58,6 +60,14 @@ class App extends React.Component {
 		console.log('getCards')
 	}
 
+	showAddForm() {
+		this.setState({addForm: {show: true}});
+	}
+
+	showRepeatForm() {
+		this.setState({repeatForm: {show: true}});
+	}
+
 	getUserName() {
 		$.ajax({
 			url: '/index.php',
@@ -69,6 +79,16 @@ class App extends React.Component {
 				this.setState({userName: data});
 			}
 		});
+	}
+
+	componentDidMount() {
+		Mousetrap.bind(['alt+a'], this.showAddForm);
+		Mousetrap.bind(['alt+r'], this.showRepeatForm);
+	}
+
+	componentWillUnmount() {
+		Mousetrap.bind(['alt+a'], this.showAddForm);
+		Mousetrap.bind(['alt+r'], this.showRepeatForm);
 	}
 
 	render() {
@@ -256,7 +276,7 @@ class Cards extends React.Component {
 	constructor(props) {
 		super(props);
 		this.removeCard = this.removeCard.bind(this);
-		this.resetCard = this.resetCard.bind(this);
+		this.resetCard 	= this.resetCard.bind(this);
 		this.state = {
 			app: props.app
 		};
@@ -340,9 +360,9 @@ function Card(props) {
 class Repeat extends React.Component {
 	constructor(props) {
 		super(props);
-		this.answerChange = this.answerChange.bind(this);
-		this.closeRepeatForm = this.closeRepeatForm.bind(this);
-		this.checkAnswer = this.checkAnswer.bind(this);
+		this.answerChange 		= this.answerChange.bind(this);
+		this.closeRepeatForm 	= this.closeRepeatForm.bind(this);
+		this.checkAnswer 		= this.checkAnswer.bind(this);
 		this.state = {
 			app: props.app,
 			answer: '',
@@ -374,11 +394,11 @@ class Repeat extends React.Component {
 	}
 
 	checkAnswer(e) {
-		var type = e.type;
-		var cards = this.state.app.state.cardsForRepeat; 
-		var card = cards[0];
-		var question = card.question;
-		var answer = card.answer;
+		var type 		= e.type;
+		var cards 		= this.state.app.state.cardsForRepeat; 
+		var card 		= cards[0];
+		var question 	= card.question;
+		var answer 		= card.answer;
 
 		answer = answer.replace(/\s*,\s*/g, ',').toLowerCase();
 		answer = answer.split(',');

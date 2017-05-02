@@ -55,6 +55,7 @@
 	<script src="/dist/js/libs/jquery/dist/jquery.min.js"></script>
 	<script src="/dist/js/libs/react/react.min.js"></script>
 	<script src="/dist/js/libs/react/react-dom.min.js"></script>
+	<script src="/dist/js/libs/mousetrap/mousetrap.min.js"></script>
 	<script src="/dist/js/main.js"></script>
 </body>
 </html>
