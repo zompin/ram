@@ -159,7 +159,6 @@ class AddForm extends React.Component {
 		this.onAdd 			= this.onAdd.bind(this);
 		this.hideForm		= this.hideForm.bind(this);
 		this.onEnter 		= this.onEnter.bind(this);
-		this.questionFocus 	= this.questionFocus.bind(this);
 		this.state = {
 			answer: '',
 			question: '',
@@ -226,10 +225,6 @@ class AddForm extends React.Component {
 		e.preventDefault();
 	}
 
-	questionFocus() {
-		this.questionEl.focus();
-	}
-
 	render() {
 		var style = {};
 
@@ -255,7 +250,7 @@ class AddForm extends React.Component {
 						onKeyDown = {this.onEnter} 
 						placeholder="Вопрос"
 						value = {this.state.question}
-						ref = {el => {this.questionEl = el;}}
+						ref = {(textarea) => textarea && textarea.focus()}
 					></textarea>
 					<textarea 
 						className="textarea add-form__textarea" 
@@ -482,7 +477,7 @@ class Repeat extends React.Component {
 
 function RepeatForm(props) {
 	var repeat = props.repeat;
-
+	//console.log(repeat.state.app.state.repeatForm.show);
 	if (props.haveCards) {
 		return (
 			<div className="repeat-form__inner">
@@ -496,7 +491,8 @@ function RepeatForm(props) {
 					onChange = {repeat.answerChange} 
 					onKeyDown = {repeat.checkAnswer} 
 					className="repeat-form__input" 
-					value = {repeat.state.answer} 
+					value = {repeat.state.answer}
+					ref = {(input) => input && input.focus()}
 				/>
 				<button 
 					onClick = {repeat.checkAnswer} 
