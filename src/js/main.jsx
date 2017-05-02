@@ -19,8 +19,8 @@ class App extends React.Component {
 				show: false
 			},
 			note: {
-				show: false,
-				message: ''
+				show: 		false,
+				message: 	''
 			},
 			userName: ''
 		};
@@ -28,9 +28,9 @@ class App extends React.Component {
 
 	getAllCards() {
 		$.ajax({
-			url: '/index.php',
-			type: 'POST',
-			data: {
+			url: 	'/index.php',
+			type: 	'POST',
+			data: 	{
 				action: 'getAllCards'
 			},
 			success: data =>  {
@@ -42,9 +42,9 @@ class App extends React.Component {
 
 	getCardsForRepeat() {
 		$.ajax({
-			url: '/index.php',
-			type: 'POST',
-			data: {
+			url: 	'/index.php',
+			type: 	'POST',
+			data: 	{
 				action: 'getCardsForRepeat'
 			},
 			success: data => {
@@ -70,9 +70,9 @@ class App extends React.Component {
 
 	getUserName() {
 		$.ajax({
-			url: '/index.php',
+			url: 	'/index.php',
 			method: 'POST',
-			data: {
+			data: 	{
 				action: 'getUserName'
 			},
 			success: data => {
@@ -94,11 +94,11 @@ class App extends React.Component {
 	render() {
 		return (
 			<div id="app">
-				<Panel app = {this} />
-				<AddForm app = {this} />
-				<Repeat app = {this} />
-				<Cards app = {this} />
-				<Note app = {this} />
+				<Panel 		app = {this} />
+				<AddForm 	app = {this} />
+				<Repeat 	app = {this} />
+				<Cards 		app = {this} />
+				<Note 		app = {this} />
 			</div>
 		);
 	}
@@ -107,16 +107,14 @@ class App extends React.Component {
 class Panel extends React.Component {
 	constructor(props) {
 		super(props);
-		this.showAddForm = this.showAddForm.bind(this);
+		this.showAddForm 	= this.showAddForm.bind(this);
 		this.showRepeatForm = this.showRepeatForm.bind(this);
-		this.state = {
-			app: props.app
-		};
+		this.app 			= props.app;
 	}
 
 	showAddForm() {
-		clearInterval(this.state.app.interval);
-		this.state.app.setState({
+		clearInterval(this.app.interval);
+		this.app.setState({
 			addForm: {
 				show: true
 			}
@@ -124,8 +122,8 @@ class Panel extends React.Component {
 	}
 
 	showRepeatForm() {
-		clearInterval(this.state.app.interval);
-		this.state.app.setState({
+		clearInterval(this.app.interval);
+		this.app.setState({
 			repeatForm: {
 				show: true
 			}
@@ -139,10 +137,10 @@ class Panel extends React.Component {
 					<button className="button panel__button" onClick= {this.showRepeatForm} >Тренироваться</button>
 					<button className="button panel__button" onClick= {this.showAddForm} >Добавить</button>
 					<div className="panel__unrepeated">
-						Слов для повтора: {this.state.app.state.cardsForRepeat.length}
+						Слов для повтора: {this.app.state.cardsForRepeat.length}
 					</div>
 					<div className="user">
-						<div className="user__name">{this.state.app.state.userName}</div>
+						<div className="user__name">{this.app.state.userName}</div>
 						<a className="user__exit" href="/index.php?action=exit">Выйти</a>
 					</div>
 				</div>
@@ -154,15 +152,15 @@ class Panel extends React.Component {
 class AddForm extends React.Component {
 	constructor(props) {
 		super(props);
-		this.questionChange = this.questionChange.bind(this);
-		this.answerChange 	= this.answerChange.bind(this);
-		this.onAdd 			= this.onAdd.bind(this);
-		this.hideForm		= this.hideForm.bind(this);
-		this.onEnter 		= this.onEnter.bind(this);
+		this.questionChange 	= this.questionChange.bind(this);
+		this.answerChange 		= this.answerChange.bind(this);
+		this.onAdd 				= this.onAdd.bind(this);
+		this.hideForm			= this.hideForm.bind(this);
+		this.onEnter 			= this.onEnter.bind(this);
+		this.app 				= props.app;
 		this.state = {
-			answer: '',
-			question: '',
-			app: props.app
+			answer: 	'',
+			question: 	'',
 		};
 	}
 
@@ -176,25 +174,26 @@ class AddForm extends React.Component {
 
 	onAdd(e) {
 		var data = {
-			action: 'addCard',
-			question: this.state.question,
-			answer: this.state.answer
+			action: 	'addCard',
+			question: 	this.state.question,
+			answer: 	this.state.answer
 		};
 
 		$.ajax({
-			url: '/index.php',
-			type: 'POST',
-			data: data,
-			success: data => {
+			url: 		'/index.php',
+			type: 		'POST',
+			data: 		data,
+			success: 	data => {
 				console.log(data);
 			}
 		});
 
 		if (e.nativeEvent.ctrlKey) {
 			this.setState({
-				answer: '',
-				question: ''
+				answer: 	'',
+				question: 	''
 			});
+			this.app.questionTextearea.focus();
 		} else {
 			this.hideForm(e);
 		}
@@ -210,17 +209,17 @@ class AddForm extends React.Component {
 
 	hideForm(e) {
 		this.setState({
-			question: '',
-			answer: ''
+			question: 	'',
+			answer: 	''
 		});
-		this.state.app.setState({
+		this.app.setState({
 			addForm: {
 				show: false
 			}
 		});
 
-		this.state.app.getCards();
-		this.state.app.interval = setInterval(this.state.app.getCards, 10000);
+		this.app.getCards();
+		this.app.interval = setInterval(this.app.getCards, 10000);
 
 		e.preventDefault();
 	}
@@ -228,11 +227,18 @@ class AddForm extends React.Component {
 	render() {
 		var style = {};
 
-		if (this.state.app.state.addForm.show) {
+		if (this.app.state.addForm.show) {
 			style.display = 'flex';
-			clearInterval(this.state.app.interval);
+			clearInterval(this.app.interval);
+			setTimeout(() => {
+				if (!this.app.questionFocused) {
+				 	this.app.questionTextearea.focus();
+				 	this.app.questionFocused = true;
+				}
+			}, 1);
 		} else {
-			style.display = 'none';
+			style.display 				= 'none';
+			this.app.questionFocused 	= false;
 		}
 
 		return (
@@ -250,6 +256,7 @@ class AddForm extends React.Component {
 						onKeyDown = {this.onEnter} 
 						placeholder="Вопрос"
 						value = {this.state.question}
+						ref = {textarea => this.app.questionTextearea = textarea}
 					></textarea>
 					<textarea 
 						className="textarea add-form__textarea" 
@@ -271,23 +278,21 @@ class Cards extends React.Component {
 		super(props);
 		this.removeCard = this.removeCard.bind(this);
 		this.resetCard 	= this.resetCard.bind(this);
-		this.state = {
-			app: props.app
-		};
+		this.app 		= props.app;
 	}
 
 	removeCard(id) {
 		return () => {
 			$.ajax({
-				url: '/index.php',
-				type: 'POST',
-				data: {
-					action: 'removeCard',
-					id: id
+				url: 	'/index.php',
+				type: 	'POST',
+				data: 	{
+					action: 	'removeCard',
+					id: 		id
 				},
 				success: data => {
 					console.log(data)
-					this.state.app.getCards();
+					this.app.getCards();
 				}
 			});
 		}
@@ -296,22 +301,22 @@ class Cards extends React.Component {
 	resetCard(id) {
 		return () => {
 			$.ajax({
-				url: '/index.php',
-				type: 'POST',
-				data: {
+				url: 	'/index.php',
+				type: 	'POST',
+				data: 	{
 					action: 'resetCard',
-					id: id
+					id: 	id
 				},
 				success: data => {
 					console.log(data)
-					this.state.app.getCards();
+					this.app.getCards();
 				}
 			});
 		}
 	}
 
 	render() {
-		var cards = this.state.app.state.cards;
+		var cards = this.app.state.cards;
 
 		if (cards.length == 0) {
 			return (
@@ -330,9 +335,9 @@ class Cards extends React.Component {
 };
 
 function Card(props) {
-	var progress = props.item.repeat;
-	var width = (100 / 6) * progress;
-	var style = {
+	var progress 	= props.item.repeat;
+	var width 		= (100 / 6) * progress;
+	var style 		= {
 		width: width + '%'
 	}
 
@@ -357,13 +362,13 @@ class Repeat extends React.Component {
 		this.answerChange 		= this.answerChange.bind(this);
 		this.closeRepeatForm 	= this.closeRepeatForm.bind(this);
 		this.checkAnswer 		= this.checkAnswer.bind(this);
+		this.app 				= props.app;
 		this.state = {
-			app: props.app,
-			answer: '',
-			showMessage: false,
-			correct: false,
-			correctAnswer: '',
-			cheked: false
+			answer: 		'',
+			showMessage: 	false,
+			correct: 		false,
+			correctAnswer: 	'',
+			cheked: 		false
 		}
 	}
 
@@ -372,24 +377,24 @@ class Repeat extends React.Component {
 	}
 
 	closeRepeatForm() {
-		this.state.app.setState({
+		this.app.setState({
 			repeatForm: {
 				show: false
 			}
 		});
 		
 		this.setState({
-			checked: false,
-			showMessage: false
+			checked: 		false,
+			showMessage: 	false
 		});
 
-		this.state.app.getCards();
-		this.state.app.interval = setInterval(this.state.app.getCards, 10000);
+		this.app.getCards();
+		this.app.interval = setInterval(this.app.getCards, 10000);
 	}
 
 	checkAnswer(e) {
 		var type 		= e.type;
-		var cards 		= this.state.app.state.cardsForRepeat; 
+		var cards 		= this.app.state.cardsForRepeat; 
 		var card 		= cards[0];
 		var question 	= card.question;
 		var answer 		= card.answer;
@@ -406,27 +411,27 @@ class Repeat extends React.Component {
 
 				cards.shift();
 
-				this.state.app.setState({
+				this.app.setState({
 					cardsForRepeat: cards
 				});
 				
 				this.setState({
-					checked: false,
-					showMessage: false,
-					answer: ''
+					checked: 		false,
+					showMessage: 	false,
+					answer: 		''
 				});
 
 				$.ajax({
 					url: '/index.php',
 					type: 'POST',
 					data: {
-						action: 'repeatCard',
-						id: card.id,
-						repeat: card.repeat,
-						last_update: card.last_update
+						action: 		'repeatCard',
+						id: 			card.id,
+						repeat: 		card.repeat,
+						last_update: 	card.last_update
 					},
 					success: data => {
-						//this.state.app.getCards();
+						//this.app.getCards();
 					}
 				});
 
@@ -435,15 +440,15 @@ class Repeat extends React.Component {
 
 			if (answer.indexOf(this.state.answer.toLowerCase()) != -1 ) {
 				this.setState({
-					correct: true,
-					showMessage: true,
-					checked: true
+					correct: 		true,
+					showMessage: 	true,
+					checked: 		true
 				});
 			} else {
 				this.setState({
-					correct: false,
-					showMessage: true,
-					correctAnswer: card.answer
+					correct: 		false,
+					showMessage: 	true,
+					correctAnswer: 	card.answer
 				});
 			}
 		}
@@ -451,15 +456,15 @@ class Repeat extends React.Component {
 	}
 
 	render() {
-		var formStyle = {};
-		var question = '';
-		var cards = this.state.app.state.cardsForRepeat;
+		var formStyle 	= {};
+		var question 	= '';
+		var cards 		= this.app.state.cardsForRepeat;
 
 		if (cards.length > 0) {
 			question = cards[0].question;
 		}
 
-		if (this.state.app.state.repeatForm.show) {
+		if (this.app.state.repeatForm.show) {
 			formStyle.display = 'flex';
 		} else {
 			formStyle.display = 'none';
@@ -491,6 +496,7 @@ function RepeatForm(props) {
 					onKeyDown = {repeat.checkAnswer} 
 					className="repeat-form__input" 
 					value = {repeat.state.answer}
+					ref = {input => input && input.focus()}
 				/>
 				<button 
 					onClick = {repeat.checkAnswer} 
@@ -532,20 +538,18 @@ function RepeatFormMessage(props) {
 class Note extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			app: props.app,
-		}
+		this.app = props.app
 	}
 
 	showNote() {
-		this.state.app.setState({
+		this.app.setState({
 			note: {
 				show: true
 			}
 		});
 
 		/*var timer = setTimeout(() => {
-			this.state.app.setState({
+			this.app.setState({
 				note: {
 					show: true
 				}
@@ -557,14 +561,14 @@ class Note extends React.Component {
 		var style = {};
 		//this.showNote();
 
-		if (this.state.app.state.note.show) {
+		if (this.app.state.note.show) {
 			style.display = 'block';
 		} else {
 			style.display = 'none';
 		}
 
 		return (
-			<div className="note" style = {style} >{this.state.app.state.note.message}</div>
+			<div className="note" style = {style} >{this.app.state.note.message}</div>
 		);
 	}
 };
