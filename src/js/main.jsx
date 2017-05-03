@@ -1,3 +1,7 @@
+function isTouch() {
+	return 'ontouchstart' in document.documentElement;
+}
+
 class App extends React.Component {
 	constructor(props) {
 		super(props);
@@ -113,6 +117,7 @@ class Panel extends React.Component {
 	}
 
 	showAddForm() {
+		if (this.app.state.addForm.show) return;
 		clearInterval(this.app.interval);
 		this.app.setState({
 			addForm: {
@@ -122,6 +127,7 @@ class Panel extends React.Component {
 	}
 
 	showRepeatForm() {
+		if (this.app.state.repeatForm.show) return;
 		clearInterval(this.app.interval);
 		this.app.setState({
 			repeatForm: {
@@ -134,8 +140,8 @@ class Panel extends React.Component {
 		return (
 			<div className="panel">
 				<div className="panel__inner">
-					<button className="button panel__button" onClick= {this.showRepeatForm} >Тренироваться</button>
-					<button className="button panel__button" onClick= {this.showAddForm} >Добавить</button>
+					<button className="button panel__button" onClick = {this.showRepeatForm} onTouchEnd = {this.showRepeatForm} >Тренироваться</button>
+					<button className="button panel__button" onClick = {this.showAddForm} onTouchEnd = {this.showAddForm} >Добавить</button>
 					<div className="panel__unrepeated">
 						Слов для повтора: {this.app.state.cardsForRepeat.length}
 					</div>
@@ -157,6 +163,7 @@ class AddForm extends React.Component {
 		this.onAdd 				= this.onAdd.bind(this);
 		this.hideForm			= this.hideForm.bind(this);
 		this.onEnter 			= this.onEnter.bind(this);
+		this.onClick 			= this.onClick.bind(this);
 		this.app 				= props.app;
 		this.state = {
 			answer: 	'',
@@ -208,6 +215,8 @@ class AddForm extends React.Component {
 	}
 
 	hideForm(e) {
+		if (isTouch() && e.type == 'click') return;
+
 		this.setState({
 			question: 	'',
 			answer: 	''
@@ -222,6 +231,12 @@ class AddForm extends React.Component {
 		this.app.interval = setInterval(this.app.getCards, 10000);
 
 		e.preventDefault();
+	}
+
+	onClick(e) {
+		if (isTouch()) {
+			e.preventDefault();
+		}
 	}
 
 	render() {
@@ -243,11 +258,12 @@ class AddForm extends React.Component {
 
 		return (
 			<div style = {style} className="add-form">
-				<div className="add-form__close-div" onClick = {this.hideForm} />
+				<div className="add-form__close-div" onClick = {this.hideForm} onTouchEnd = {this.hideForm} />
 				<form onSubmit = {this.onAdd} className="add-form__form">
 					<button 
 						className="button add-form__button add-form__button_close" 
-						onClick = {this.hideForm} 
+						onClick = {this.hideForm}
+						onTouchEnd = {this.hideForm}
 					>&times;</button>
 					<textarea 
 						className="textarea add-form__textarea" 
@@ -266,7 +282,12 @@ class AddForm extends React.Component {
 						placeholder="Ответ"
 						value = {this.state.answer}
 					></textarea>
-					<button className="button add-form__button add-form__button_add" type="submit">Добавить</button>
+					<button 
+						className="button add-form__button add-form__button_add" 
+						type="submit" 
+						onTouchEnd = {this.onAdd} 
+						onClick = {this.onClick}
+					>Добавить</button>
 				</form>
 			</div>
 		);
@@ -281,38 +302,42 @@ class Cards extends React.Component {
 		this.app 		= props.app;
 	}
 
-	removeCard(id) {
-		return () => {
-			$.ajax({
-				url: 	'/index.php',
-				type: 	'POST',
-				data: 	{
-					action: 	'removeCard',
-					id: 		id
-				},
-				success: data => {
-					console.log(data)
-					this.app.getCards();
-				}
-			});
-		}
+	removeCard(e) {
+		let id = e.target.parentNode.parentNode.getAttribute('data-id')
+
+		if (isTouch() && e.type == 'click') return;
+
+		$.ajax({
+			url: 	'/index.php',
+			type: 	'POST',
+			data: 	{
+				action: 	'removeCard',
+				id: 		id
+			},
+			success: data => {
+				console.log(data)
+				this.app.getCards();
+			}
+		});
 	}
 
-	resetCard(id) {
-		return () => {
-			$.ajax({
-				url: 	'/index.php',
-				type: 	'POST',
-				data: 	{
-					action: 'resetCard',
-					id: 	id
-				},
-				success: data => {
-					console.log(data)
-					this.app.getCards();
-				}
-			});
-		}
+	resetCard(e) {
+		let id = e.target.parentNode.parentNode.getAttribute('data-id')
+
+		if (isTouch() && e.type == 'click') return;
+
+		$.ajax({
+			url: 	'/index.php',
+			type: 	'POST',
+			data: 	{
+				action: 'resetCard',
+				id: 	id
+			},
+			success: data => {
+				console.log(data)
+				this.app.getCards();
+			}
+		});
 	}
 
 	render() {
@@ -342,15 +367,23 @@ function Card(props) {
 	}
 
 	return (
-		<div key = {props.item.id} className="card">
+		<div key = {props.item.id} className="card" data-id = {props.item.id} >
 			<div className="card__question">{props.item.question}</div>
 			<div className="card__answer">{props.item.answer}</div>
 			<div className="card__progress">
 				<div className="card__progress-scale" style = {style} ></div>
 			</div>
 			<div className="card__control">
-				<button className="card__button" onClick = {props.reset(props.item.id)} >Учить снова</button>
-				<button className="card__button" onClick = {props.delete(props.item.id)} >&times;</button>
+				<button 
+					className="card__button" 
+					onClick = {props.reset} 
+					onTouchEnd = {props.reset} 
+				>Учить снова</button>
+				<button 
+					className="card__button" 
+					onClick = {props.delete} 
+					onTouchEnd = {props.delete} 
+				>&times;</button>
 			</div>
 		</div>
 	);
@@ -376,7 +409,9 @@ class Repeat extends React.Component {
 		this.setState({answer: e.target.value});
 	}
 
-	closeRepeatForm() {
+	closeRepeatForm(e) {
+		if (isTouch() && e.type == 'click') return;
+
 		this.app.setState({
 			repeatForm: {
 				show: false
@@ -402,7 +437,8 @@ class Repeat extends React.Component {
 		answer = answer.replace(/\s*,\s*/g, ',').toLowerCase();
 		answer = answer.split(',');
 
-		if (type == 'click' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
+		if (isTouch() && type == 'click') return;
+		if (type == 'click' || type == 'touchend' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
 			if (this.state.checked) {
 
 				if (!card) {
@@ -472,8 +508,16 @@ class Repeat extends React.Component {
 
 		return (
 			<div style = {formStyle} className="repeat-form">
-				<div className="repeat-form__close-div" onClick = {this.closeRepeatForm} ></div>
-				<RepeatForm repeat = {this} question = {question} haveCards = {cards.length > 0}/>
+				<div 
+					className="repeat-form__close-div" 
+					onClick = {this.closeRepeatForm} 
+					onTouchEnd = {this.closeRepeatForm} 
+				></div>
+				<RepeatForm 
+					repeat = {this} 
+					question = {question} 
+					haveCards = {cards.length > 0}
+				/>
 			</div>
 		);
 	}
@@ -500,10 +544,12 @@ function RepeatForm(props) {
 				/>
 				<button 
 					onClick = {repeat.checkAnswer} 
+					onTouchEnd = {repeat.checkAnswer} 
 					className="button repeat-form__button repeat-form__button_check"
 				>Проверить</button>
 				<button 
-					onClick= {repeat.closeRepeatForm} 
+					onClick = {repeat.closeRepeatForm}
+					onTouchEnd = {repeat.closeRepeatForm}
 					className="button repeat-form__button repeat-form__button_close"
 				>&times;</button>
 			</div>

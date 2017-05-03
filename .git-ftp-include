@@ -1,1 +1,6 @@
-!dist
+!dist/css/style.css
+!dist/js/libs/jquery/dist/jquery.min.js
+!dist/js/libs/react/react.min.js
+!dist/js/libs/react/react-dom.min.js
+!dist/js/libs/mousetrap/mousetrap.min.js
+!dist/js/main.js
