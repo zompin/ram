@@ -5,14 +5,20 @@
 	define(SECONDS_PER_HOUR, 	3600);
 	define(SECONDS_PER_DAY, 	86400);
 	define(SECONDS_PER_MONTH, 	2592000);
+	define(USER_CATEGORY, 		0);
+	define(DICTIONARY_CATEGORY, 1);
 
 	function serverError() {
 		echo json_encode(array('error' => 'server_error'));
 	}
 
-	function addCard() {
+	function mysqlLink() {
 		global $db;
-		$mysqli 	= new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		return new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+	}
+
+	function addCard() {
+		$mysqli 	= mysqlLink();
 		$question 	= $_POST['question'];
 		$answer 	= $_POST['answer'];
 
@@ -36,8 +42,7 @@
 	}
 
 	function resetCard() {
-		global $db;
-		$mysqli 	= new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$mysqli 	= mysqlLink();
 		$id 		= $_POST['id'] * 1;
 
 		if (mysqli_connect_errno()) {
@@ -57,8 +62,7 @@
 	}
 
 	function getAllCards() {
-		global $db;
-		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$mysqli = mysqlLink();
 		$cards 	= array();
 		$res 	= false;
 		$user 	= $_SESSION['user']['id'] * 1;
@@ -84,8 +88,7 @@
 	}
 
 	function getCardsForRepeat() {
-		global $db;
-		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$mysqli = mysqlLink();
 		$cards 	= array();
 		$res 	= false;
 		$now	= time();
@@ -128,11 +131,10 @@
 	}
 
 	function repeatCard() {
-		global $db;
 		$id 	= $_POST['id'] * 1;
 		$repeat = $_POST['repeat'] * 1;
 		$user 	= $_SESSION['user']['id'] * 1;
-		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$mysqli = mysqlLink();
 
 		if (mysqli_connect_errno()) {
 			serverError();
@@ -148,10 +150,9 @@
 	}
 
 	function removeCard() {
-		global $db;
 		$id 	= $_POST['id'] * 1;
 		$user 	= $_SESSION['user']['id'] * 1;
-		$mysqli = new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$mysqli = mysqlLink();
 
 		if (mysqli_connect_errno()) {
 			serverError();
@@ -163,10 +164,9 @@
 	}
 
 	function login() {
-		global $db;
 		$login 		= $_POST['login'];
 		$password 	= $_POST['password'];
-		$mysqli 	= new mysqli($db['host'], $db['user'], $db['pass'], $db['name']);
+		$mysqli 	= mysqlLink();
 		$res 		= false;
 
 		if (mysqli_connect_errno()) {
@@ -189,5 +189,128 @@
 
 	function getUserName() {
 		echo $_SESSION['user']['login'];
+	}
+
+	function createCategory() {
+		$mysqli 	= mysqlLink();
+		$category 	= $_POST['category'];
+		$type 		= $_POST['type'] * 1;
+		$user 		= $_SESSION['user']['id'] * 1;
+		$res 		= false;
+
+		if (mysqli_connect_errno()) {
+			return false;
+		} else {
+			$mysqli->set_charset('utf8');
+			$name 	= $mysqli->real_escape_string($name);
+			$query 	= "INSERT INTO categories SET `name` = '$name', `type` = '$type', `user` = '$user';";
+
+			$res 	= $mysqli->query($query);
+		}
+
+		echo !!$res;
+	}
+
+	function removeCategory() {
+		$mysqli = mysqlLink();
+		$id 	= $_POST['id'] * 1;
+
+		if (mysqli_connect_errno()) {
+			return false;
+		} else {
+			$mysqli->set_charset('utf8');
+			$query = "DELETE FROM categories WHERE `id` = '$id';";
+
+			$res = $mysqli->query($query);
+		}
+
+		echo !!$res;
+	}
+
+	function updateCategory() {
+		$mysqli = mysqlLink();
+		$id 	= $_POST['id'] * 1;
+		$name 	= $_POST['name'];
+
+		if (mysqli_connect_errno()) {
+			return false;
+		} else {
+			$mysqli->set_charset('utf8');
+			$name = $mysqli->real_escape_string($name);
+			$query = "UPDATE categories SET `name` = '$name' WHERE `id` = '$id';";
+
+			$res = $mysqli->query($query);
+		}
+
+		echo !!$res;
+	}
+
+	function getCategory($id) {
+		$mysqli = mysqlLink();
+		$user 	= $_SESSION['user']['id'] * 1;
+
+		if (mysqli_connect_errno()) {
+			return false;
+		} else {
+			$mysqli->set_charset('utf8');
+			$query 	= "SELECT * FROM categories WHERE `id` = '$id' AND `user` = '$user' LIMIT 1;";
+			$res 	= $mysqli->query($query);
+		}
+
+		if ($res) {
+			$category = $res->fetch_assoc();
+		} else {
+			$category = false;
+		}
+
+		return $category;
+	}
+
+	function getUsersCategories() {
+		$mysqli 	= mysqlLink();
+		$user 		= $_SESSION['user']['id'] * 1;
+		$categories = array();
+
+		if (mysqli_connect_errno()) {
+			return false;
+		} else {
+			$mysqli->set_charset('utf8');
+			$query 	= "SELECT * FROM categories WHERE `user` = '$user'";
+			$res 	= $mysqli->query($query);
+		}
+
+		if ($res) {
+			while ($category = $res->fetch_assoc()) {
+				array_push($categories, $category);
+			}
+		} else {
+			$categories = false;
+		}
+
+		return $categories;
+	}
+
+	function getDictionaryCategories() {
+		$mysqli 	= mysqlLink();
+		$categories = array();
+		$type 		= DICTIONARY_CATEGORY;
+
+		if (mysqli_connect_errno()) {
+			return false;
+		} else {
+			$mysqli->set_charset('utf8');
+			$query 	= "SELECT * FROM categories WHERE `type` = '$type';";
+			$res 	= $mysqli->query($query);
+		}
+
+		if ($res) {
+			while ($category = $res->fetch_assoc()) {
+				array_push($categories, $category);
+			}
+		} else {
+			$categories = false;
+		}
+
+		return $categoires;
 	}
 ?>
