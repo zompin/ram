@@ -440,6 +440,7 @@ class Repeat extends React.Component {
 		answer = answer.split(',');
 
 		if (this.input) this.input.focus();
+		if (isTouch() && type == 'click') return;
 		if (type == 'click' || type == 'touchend' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
 			if (this.state.checked) {
 
