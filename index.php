@@ -14,11 +14,8 @@
 			case 'resetCard':
 				resetCard();
 			break;
-			case 'getAllCards':
-				getAllCards();
-			break;
-			case 'getCardsForRepeat':
-				getCardsForRepeat();
+			case 'getCards':
+				getCards();
 			break;
 			case 'repeatCard':
 				repeatCard();

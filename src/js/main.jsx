@@ -5,12 +5,9 @@ function isTouch() {
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.getAllCards 		= this.getAllCards.bind(this);
-		this.getCardsForRepeat 	= this.getCardsForRepeat.bind(this);
 		this.getCards 			= this.getCards.bind(this);
 		this.showAddForm 		= this.showAddForm.bind(this);
 		this.showRepeatForm 	= this.showRepeatForm.bind(this);
-		this.interval 			= setInterval(this.getCards, 10000);
 		this.getCards();
 		this.getUserName();
 		this.state = {
@@ -30,38 +27,38 @@ class App extends React.Component {
 		};
 	}
 
-	getAllCards() {
+	getCards(recurse = true) {
 		$.ajax({
-			url: 	'/index.php',
-			type: 	'POST',
-			data: 	{
-				action: 'getAllCards'
-			},
-			success: data =>  {
-				data = JSON.parse(data);
-				this.setState({cards: data});
-			}
-		});
-	}
-
-	getCardsForRepeat() {
-		$.ajax({
-			url: 	'/index.php',
-			type: 	'POST',
-			data: 	{
-				action: 'getCardsForRepeat'
+			url: '/index.php',
+			type: 'POST',
+			data: {
+				action: 'getCards',
 			},
 			success: data => {
-				data = JSON.parse(data);
-				this.setState({cardsForRepeat: data});
+				let unrepeatedCards = [];
+				let cards 			= JSON.parse(data);
+
+				if (cards) {
+					cards.forEach(card => {
+						if (card.unrepeated) {
+							unrepeatedCards.push(card);
+						}
+					});
+				}
+
+				this.setState({
+					cards: cards,
+					cardsForRepeat: unrepeatedCards
+				});
+
+				if (recurse) {
+					this.getCardsTimeout = setTimeout(() => this.getCards(true), 10000);
+				}
+			},
+			error: () => {
+				this.getCardsTimeout = setTimeout(() => this.getCards(true), 20000);
 			}
 		});
-	}
-
-	getCards() {
-		this.getAllCards();
-		this.getCardsForRepeat();
-		console.log('getCards')
 	}
 
 	showAddForm() {
@@ -118,7 +115,9 @@ class Panel extends React.Component {
 
 	showAddForm() {
 		if (this.app.state.addForm.show) return;
-		clearInterval(this.app.interval);
+
+		clearTimeout(this.app.getCardsTimeout);
+
 		this.app.setState({
 			addForm: {
 				show: true
@@ -128,7 +127,9 @@ class Panel extends React.Component {
 
 	showRepeatForm() {
 		if (this.app.state.repeatForm.show) return;
-		clearInterval(this.app.interval);
+
+		clearTimeout(this.app.getCardsTimeout);
+
 		this.app.setState({
 			repeatForm: {
 				show: true
@@ -228,7 +229,6 @@ class AddForm extends React.Component {
 		});
 
 		this.app.getCards();
-		this.app.interval = setInterval(this.app.getCards, 10000);
 
 		e.preventDefault();
 	}
@@ -244,7 +244,6 @@ class AddForm extends React.Component {
 
 		if (this.app.state.addForm.show) {
 			style.display = 'flex';
-			clearInterval(this.app.interval);
 			setTimeout(() => {
 				if (!this.app.questionFocused) {
 				 	this.app.questionTextearea.focus();
@@ -316,7 +315,7 @@ class Cards extends React.Component {
 			},
 			success: data => {
 				console.log(data)
-				this.app.getCards();
+				this.app.getCards(false);
 			}
 		});
 	}
@@ -335,7 +334,7 @@ class Cards extends React.Component {
 			},
 			success: data => {
 				console.log(data)
-				this.app.getCards();
+				this.app.getCards(false);
 			}
 		});
 	}
@@ -424,7 +423,6 @@ class Repeat extends React.Component {
 		});
 
 		this.app.getCards();
-		this.app.interval = setInterval(this.app.getCards, 10000);
 	}
 
 	checkAnswer(e) {

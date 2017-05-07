@@ -61,61 +61,16 @@
 		}
 	}
 
-	function getAllCards() {
+	function getCards() {
 		$mysqli = mysqlLink();
 		$cards 	= array();
-		$res 	= false;
-		$user 	= $_SESSION['user']['id'] * 1;
-
-		if ($mysqli->connect_errno) {
-			serverError();
-		} else {
-			$mysqli->set_charset('utf8');
-			$query = "SELECT `id`, `question`, `answer`, `repeat` FROM cards WHERE user=$user ORDER BY `repeat`;";
-			$res = $mysqli->query($query);
-		}
-
-		if ($res) {
-			while ($card = $res->fetch_assoc()) {
-				array_push($cards, $card);
-			}
-
-			echo json_encode($cards);
-		} else {
-			serverError();
-			echo $mysqli->error;
-		}
-	}
-
-	function getCardsForRepeat() {
-		$mysqli = mysqlLink();
-		$cards 	= array();
-		$res 	= false;
-		$now	= time();
 		$user 	= $_SESSION['user']['id'] * 1;
 
 		if (mysqli_connect_errno()) {
 			serverError();
 		} else {
 			$mysqli->set_charset('utf8');
-			$m20 	= SECONDS_PER_MINUTE * 20;
-			$h8		= SECONDS_PER_HOUR * 8;
-			$d1		= SECONDS_PER_DAY;
-			$w2 	= SECONDS_PER_DAY * 14;
-			$m2 	= SECONDS_PER_MONTH * 2;
-			$query 	= "
-				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 0 AND user = $user)
-				UNION
-				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 1 AND last_update < $now - $m20 AND user = $user)
-				UNION
-				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 2 AND last_update < $now - $h8 AND user = $user)
-				UNION
-				(SELECT `id`, question, `answer`, `repeat` FROM `cards` WHERE `repeat` = 3 AND last_update < $now - $d1 AND user = $user)
-				UNION
-				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 4 AND last_update < $now - $w2 AND user = $user)
-				UNION
-				(SELECT `id`, `question`, `answer`, `repeat` FROM `cards` WHERE `repeat` = 5 AND last_update < $now - $m2 AND user = $user)
-			;";
+			$query = "SELECT `id`, `question`, `answer`, `repeat`, `last_update` FROM cards WHERE user = '$user' ORDER BY `repeat` ASC;";
 			$res = $mysqli->query($query);
 		}
 
@@ -124,10 +79,56 @@
 				array_push($cards, $card);
 			}
 
-			echo json_encode($cards);
+			echo json_encode(separateCards($cards));
 		} else {
 			serverError();
 		}
+	}
+
+	function separateCards($cards) {
+		$count 	= count($cards);
+		$now 	= time();
+		$m20 	= SECONDS_PER_MINUTE * 20;
+		$h8		= SECONDS_PER_HOUR * 8;
+		$d1		= SECONDS_PER_DAY;
+		$w2 	= SECONDS_PER_DAY * 14;
+		$m2 	= SECONDS_PER_MONTH * 2;
+
+		for ($i = 0; $i < $count; $i++) {
+			switch ($cards[$i]['repeat']) {
+				case 0:
+					$cards[$i]['unrepeated'] = true;
+				break;
+				case 1:
+					if ($cards[$i]['last_update'] < $now - $m20) {
+						$cards[$i]['unrepeated'] = true;
+					}
+				break;
+				case 2:
+					if ($cards[$i]['last_update'] < $now - $h8) {
+						$cards[$i]['unrepeated'] = true;
+					}
+				break;
+				case 3:
+					if ($cards[$i]['last_update'] < $now - $d1) {
+						$cards[$i]['unrepeated'] = true;
+					}
+				break;
+				case 4:
+					if ($cards[$i]['last_update'] < $now - $w2) {
+						$cards[$i]['unrepeated'] = true;
+					}
+				break;
+				case 5:
+					if ($cards[$i]['last_update'] < $now - $m2) {
+						$cards[$i]['unrepeated'] = true;
+					}
+				break;
+
+			}
+		}
+
+		return $cards;
 	}
 
 	function repeatCard() {
