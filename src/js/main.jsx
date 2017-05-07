@@ -394,6 +394,7 @@ class Repeat extends React.Component {
 		this.answerChange 		= this.answerChange.bind(this);
 		this.closeRepeatForm 	= this.closeRepeatForm.bind(this);
 		this.checkAnswer 		= this.checkAnswer.bind(this);
+		this.innerClick 		= this.innerClick.bind(this);
 		this.app 				= props.app;
 		this.state = {
 			answer: 		'',
@@ -409,7 +410,10 @@ class Repeat extends React.Component {
 	}
 
 	closeRepeatForm(e) {
-		if (isTouch() && e.type == 'click') return;
+		if (isTouch() && e.type == 'click') {
+			this.input && this.input.focus();
+			return;
+		}
 
 		this.app.setState({
 			repeatForm: {
@@ -435,7 +439,7 @@ class Repeat extends React.Component {
 		answer = answer.replace(/\s*,\s*/g, ',').toLowerCase();
 		answer = answer.split(',');
 
-		if (isTouch() && type == 'click') return;
+		if (this.input) this.input.focus();
 		if (type == 'click' || type == 'touchend' || (type == 'keydown' && (e.keyCode == 10 || e.keyCode == 13))) {
 			if (this.state.checked) {
 
@@ -489,6 +493,12 @@ class Repeat extends React.Component {
 
 	}
 
+	innerClick(e) {
+		if (isTouch() && e.type == 'click') {
+			this.input && this.input.focus();
+		}
+	}
+
 	render() {
 		var formStyle 	= {};
 		var question 	= '';
@@ -526,7 +536,7 @@ function RepeatForm(props) {
 
 	if (props.haveCards) {
 		return (
-			<div className="repeat-form__inner">
+			<div className="repeat-form__inner" onClick = {repeat.innerClick} >
 				<div className="repeat-form__question">{props.question}</div>
 				<RepeatFormMessage 
 					show = {repeat.state.showMessage} 
@@ -538,13 +548,16 @@ function RepeatForm(props) {
 					onKeyDown = {repeat.checkAnswer} 
 					className="repeat-form__input" 
 					value = {repeat.state.answer}
-					ref = {input => input && input.focus()}
+					ref = {input => {
+						props.repeat.input = input;
+						if (input) input.focus();
+					}}
 				/>
 				<button 
 					onClick = {repeat.checkAnswer} 
 					onTouchEnd = {repeat.checkAnswer} 
 					className="button repeat-form__button repeat-form__button_check"
-				>Проверить</button>
+				>{repeat.state.checked ? 'Далее': 'Проверить'}</button>
 				<button 
 					onClick = {repeat.closeRepeatForm}
 					onTouchEnd = {repeat.closeRepeatForm}
