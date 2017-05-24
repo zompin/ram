@@ -1,5 +1,5 @@
 function isTouch() {
-	return 'ontouchstart' in document.documentElement;
+	return 'onTouchEnd' in document.documentElement;
 }
 
 class App extends React.Component {
@@ -8,6 +8,7 @@ class App extends React.Component {
 		this.getCards 			= this.getCards.bind(this);
 		this.showAddForm 		= this.showAddForm.bind(this);
 		this.showRepeatForm 	= this.showRepeatForm.bind(this);
+		this.appBlur 			= this.appBlur.bind(this);
 		this.getCards();
 		this.getUserName();
 		this.state = {
@@ -23,7 +24,8 @@ class App extends React.Component {
 				show: 		false,
 				message: 	''
 			},
-			userName: ''
+			userName: '',
+			logs: []
 		};
 	}
 
@@ -77,6 +79,10 @@ class App extends React.Component {
 		if (this.state.repeatForm.show) return;
 
 		clearTimeout(this.getCardsTimeout);
+		setTimeout(() => {
+			console.log(this.repeatInput)
+			if (this.repeatInput) this.repeatInput.focus();
+		}, 200);
 
 		this.setState({
 			repeatForm: {
@@ -98,6 +104,16 @@ class App extends React.Component {
 		});
 	}
 
+	appBlur(e) {
+		let eve = {
+			type: e.type,
+			target: e.target
+		};
+
+		this.state.logs.push(eve);
+		this.setState({logs: this.state.logs});
+	}
+
 	componentDidMount() {
 		Mousetrap.bind(['alt+a'], this.showAddForm);
 		Mousetrap.bind(['alt+r'], this.showRepeatForm);
@@ -108,14 +124,16 @@ class App extends React.Component {
 		Mousetrap.bind(['alt+r'], this.showRepeatForm);
 	}
 
+
 	render() {
 		return (
-			<div id="app">
-				<Panel 		app = {this} />
-				<Add 		app = {this} />
-				<Repeat 	app = {this} />
-				<Cards 		app = {this} />
-				<Note 		app = {this} />
+			<div id="app" onBlur = {this.appBlur} >
+				<Panel 	app = {this} />
+				<Add 	app = {this} />
+				<Repeat app = {this} />
+				<Cards 	app = {this} />
+				<Note 	app = {this} />
+				<Log 	logs = {this.state.logs} />
 			</div>
 		);
 	}
@@ -150,8 +168,8 @@ function PanelRepeatButton(props) {
 	if (isTouch()) {
 		return (
 			<button
-				className    = "button panel__button"
-				onTouchStart = {props.handler}
+				className  = "button panel__button"
+				onTouchEnd = {props.handler}
 			>Тренироваться</button>
 		);
 	} else {
@@ -168,8 +186,8 @@ function PanelAddButton(props) {
 	if (isTouch()) {
 		return (
 			<button
-				className    = "button panel__button"
-				onTouchStart = {props.handler}
+				className  = "button panel__button"
+				onTouchEnd = {props.handler}
 			>Добавить</button>
 		);
 	} else {
@@ -305,8 +323,8 @@ function AddCloseDiv(props) {
 	if (isTouch()) {
 		return (
 			<div
-				className    = "add-form__close-div"
-				onTouchStart = {props.handler}
+				className  = "add-form__close-div"
+				onTouchEnd = {props.handler}
 			/>
 		);
 	} else {
@@ -323,8 +341,8 @@ function AddCloseButton(props) {
 	if (isTouch()) {
 		return (
 			<button
-				className    = "button add-form__button add-form__button_close"
-				onTouchStart = {props.handler}
+				className  = "button add-form__button add-form__button_close"
+				onTouchEnd = {props.handler}
 			>&times;</button>
 		);
 	} else {
@@ -341,8 +359,8 @@ function AddAddButton(props) {
 	if (isTouch()) {
 		return (
 			<button 
-				className    = "button add-form__button add-form__button_add"
-				onTouchStart = {props.handler}
+				className  = "button add-form__button add-form__button_add"
+				onTouchEnd = {props.handler}
 			>Добавить</button>
 		);
 	} else {
@@ -443,7 +461,7 @@ function CardReset(props) {
 		return (
 			<button
 				className    = "card__button"
-				onTouchStart = {props.handler} 
+				onTouchEnd   = {props.handler} 
 			>Учить снова</button>
 		);
 	} else {
@@ -461,7 +479,7 @@ function CardDelete(props) {
 		return (
 			<button
 				className    = "card__button"
-				onTouchStart = {props.handler}
+				onTouchEnd   = {props.handler}
 			>&times;</button>
 		);
 	} else {
@@ -571,6 +589,10 @@ class Repeat extends React.Component {
 			}
 		}
 
+		setTimeout(() => {
+			this.app.repeatInput.focus();
+		}, 200);
+
 	}
 
 	render() {
@@ -618,10 +640,7 @@ function RepeatForm(props) {
 					onKeyDown = {repeat.checkAnswer} 
 					className = "repeat-form__input" 
 					value     = {repeat.state.answer}
-					ref       = {input => {
-						props.repeat.input = input;
-						if (input) input.focus();
-					}}
+					ref       = {input => props.repeat.app.repeatInput = input}
 				/>
 				<RepeatAnswerButton handler = {repeat.checkAnswer} checked = {repeat.state.checked} />
 				<RepeatCloseButton  handler = {repeat.closeRepeatForm} />
@@ -665,7 +684,7 @@ function RepeatCloseDiv(props) {
 		return (
 			<div 
 				className    = "repeat-form__close-div"
-				onTouchStart = {props.handler} 
+				onTouchEnd   = {props.handler} 
 			/>
 		);
 	} else {
@@ -682,7 +701,7 @@ function RepeatAnswerButton(props) {
 	if (isTouch()) {
 		return (
 			<button 
-				onTouchStart = {props.handler}
+				onTouchEnd   = {props.handler}
 				className    = "button repeat-form__button repeat-form__button_check"
 			>{props.checked ? 'Далее': 'Проверить'}</button>
 		);
@@ -700,8 +719,8 @@ function RepeatCloseButton(props) {
 	if (isTouch()) {
 		return (
 			<button 
-				onTouchStart = {props.handler}
-				className    = "button repeat-form__button repeat-form__button_close"
+				onTouchEnd = {props.handler}
+				className  = "button repeat-form__button repeat-form__button_close"
 			>&times;</button>
 		);
 	} else {
@@ -751,5 +770,24 @@ class Note extends React.Component {
 		);
 	}
 };
+
+function Log(props) {
+	let logs = props.logs.map(log => <div className = "log__item">
+		type: {log.type} {log.target.localName}{log.target.className ? '.' : ''}{log.target.className.split(' ').join('')}
+	</div>);
+
+	if (location.hash == '#debug' && logs.length) {
+		return (
+			<div className = "log" ref = {log => {
+				if (log) log.scrollTop = log.scrollTopMax;
+				console.log(log.innerHeight)
+			}} >{logs}</div>
+		);
+	} else {
+		return (
+			<div />
+		);
+	}
+}
 
 ReactDOM.render(<App />, document.getElementById('app'));
