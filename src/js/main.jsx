@@ -80,7 +80,6 @@ class App extends React.Component {
 
 		clearTimeout(this.getCardsTimeout);
 		setTimeout(() => {
-			console.log(this.repeatInput)
 			if (this.repeatInput) this.repeatInput.focus();
 		}, 200);
 
@@ -590,7 +589,7 @@ class Repeat extends React.Component {
 		}
 
 		setTimeout(() => {
-			this.app.repeatInput.focus();
+			if (this.repeatInput) this.repeatInput.focus();
 		}, 200);
 
 	}
