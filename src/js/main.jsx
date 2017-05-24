@@ -81,7 +81,7 @@ class App extends React.Component {
 		clearTimeout(this.getCardsTimeout);
 		setTimeout(() => {
 			if (this.repeatInput) this.repeatInput.focus();
-		}, 200);
+		}, 500);
 
 		this.setState({
 			repeatForm: {
@@ -590,7 +590,7 @@ class Repeat extends React.Component {
 
 		setTimeout(() => {
 			if (this.repeatInput) this.repeatInput.focus();
-		}, 200);
+		}, 500);
 
 	}
 
