@@ -31,7 +31,8 @@
 			$lastUpdate	= time();
 			$user 		= $_SESSION['user']['id'] * 1;
 			$query 		= "INSERT INTO cards SET question='$question', answer='$answer', last_update='$lastUpdate', user=$user;";
-			$res 		= $mysqli->query($query);
+			$queryM 	= "INSERT INTO cards SET question='$answer', answer='$question', last_update='$lastUpdate', user=$user;";
+			$res 		= $mysqli->query($query) && $mysqli->query($queryM);
 
 			if ($res) {
 				echo json_encode(true);
